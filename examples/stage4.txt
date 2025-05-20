@@ -1,0 +1,23 @@
+x = 5
+x = x + 10
+print x
+
+greeting = "Hello"
+greeting = greeting + " world!"
+print (greeting)
+
+truth = true
+print (truth and false)
+
+mixed = "abc"
+mixed = mixed + 123     # Throw an error
+
+greeting = "Hi"
+name = "Coding"
+message = greeting + ", " + name
+print message        # Hi, Coding
+
+a = true
+b = false
+print a and b        # False
+print a or b         # True

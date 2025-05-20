@@ -1,31 +1,27 @@
-# Entry point for the language interpreter.
+# main.py
 import sys
-from interpreter.lexer import tokenize
-from interpreter.parser import Parser
-from interpreter.interpreter import evaluate
 
-def run_file(file_path):
-    with open(file_path, "r") as f:
-        lines = f.readlines()
+# if you need it, add the current directory to the path (usually not needed if you run from here)
+# import os
+# sys.path.insert(0, os.path.dirname(__file__))
 
-    for line in lines:
-        line = line.strip()
-        if not line or line.startswith("#"):
-            continue  # Ignore blank lines and comments
-        try:
-            tokens = tokenize(line)
-            parser = Parser(tokens)
-            ast = parser.parse()
+from interpreter.lexer         import tokenize
+from interpreter.parser        import Parser
+from interpreter.interpreter   import Interpreter
 
-            if ast[0] != "PRINT":
-                print("Warning: non-print expression ignored")
-            else:
-                evaluate(ast)
-        except Exception as e:
-            print(f"Error: {e}")
+def run_file(path):
+    with open(path) as f:
+        code = f.read()
+    tokens     = tokenize(code)
+    parser     = Parser(tokens)
+    stmts      = parser.parse()
+    engine     = Interpreter()
+    for s in stmts:
+        engine.execute(s)
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
+    import sys as _sys
+    if len(_sys.argv) != 2:
         print("Usage: python main.py <source_file>")
     else:
-        run_file(sys.argv[1])
+        run_file(_sys.argv[1])

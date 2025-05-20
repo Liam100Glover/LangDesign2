@@ -4,97 +4,100 @@ class Parser:
         self.pos = 0
 
     def parse(self):
-        if self.tokens[self.pos][0] == "PRINT":
-            self.pos += 1
-            return ("PRINT", self.bool_expr())
-        else:
-            return self.bool_expr()
+        statements = []
+        while self.pos < len(self.tokens):
+            tok_type, tok_val = self.tokens[self.pos]
+            if tok_type == "PRINT":
+                self.pos += 1
+                expr = self.bool_expr()
+                statements.append(("PRINT", expr))
+            elif tok_type == "IDENT" and self.peek("ASSIGN"):
+                name = tok_val
+                self.pos += 2  # skip IDENT and ASSIGN
+                expr = self.bool_expr()
+                statements.append(("ASSIGN", name, expr))
+            else:
+                raise SyntaxError(f"Unexpected token: {self.tokens[self.pos]}")
+        return statements
+
+    def peek(self, kind):
+        return (self.pos + 1 < len(self.tokens)) and (self.tokens[self.pos + 1][0] == kind)
 
     def bool_expr(self):
         node = self.compare_expr()
         while self.pos < len(self.tokens) and self.tokens[self.pos][0] in ("AND", "OR"):
-            op = self.tokens[self.pos]
+            op = self.tokens[self.pos][0]
             self.pos += 1
             right = self.compare_expr()
-            node = (op[0], node, right)
+            node = (op, node, right)
         return node
 
     def compare_expr(self):
         node = self.expr()
         comparisons = []
-
+        
         while self.pos < len(self.tokens) and self.tokens[self.pos][0] in ("EQ", "NEQ", "LT", "GT", "LE", "GE"):
-            op = self.tokens[self.pos]
+            op = self.tokens[self.pos][0]
             self.pos += 1
             right = self.expr()
-            comparisons.append((op[0], right))
-
+            comparisons.append((op, right))
         if comparisons:
             return ("CHAIN", node, comparisons)
-        else:
-            return node
+        return node
 
 
     def expr(self):
         node = self.term()
         while self.pos < len(self.tokens) and self.tokens[self.pos][0] in ("PLUS", "MINUS"):
-            op = self.tokens[self.pos]
+            op = self.tokens[self.pos][0]
             self.pos += 1
             right = self.term()
-            node = (op[0], node, right)
+            node = (op, node, right)
         return node
 
     def term(self):
         node = self.factor()
         while self.pos < len(self.tokens) and self.tokens[self.pos][0] in ("MUL", "DIV"):
-            op = self.tokens[self.pos]
+            op = self.tokens[self.pos][0]
             self.pos += 1
             right = self.factor()
-            node = (op[0], node, right)
+            node = (op, node, right)
         return node
 
     def factor(self):
-        if self.tokens[self.pos][0] == "NOT":
+        if self.pos >= len(self.tokens):
+            raise SyntaxError("Unexpected end of input")
+        token_type, token_value = self.tokens[self.pos]
+        # Unary minus
+        if token_type == "MINUS":
             self.pos += 1
-            if self.tokens[self.pos][0] == "LPAREN":
-                self.pos += 1
-                node = self.bool_expr()
-                if self.tokens[self.pos][0] != "RPAREN":
-                    raise SyntaxError("Missing closing parenthesis")
-                self.pos += 1
-                return ("NOT", node)
-            else:
-                node = self.factor()
-                return ("NOT", node)
-
-        elif self.tokens[self.pos][0] == "TRUE":
+            expr = self.factor()
+            return ("NEG", expr)
+        if token_type == "NUMBER":
+            self.pos += 1
+            return ("NUMBER", token_value)
+        elif token_type == "STRING":
+            self.pos += 1
+            return ("STRING", token_value)
+        elif token_type == "TRUE":
             self.pos += 1
             return ("BOOL", True)
-
-        elif self.tokens[self.pos][0] == "FALSE":
+        elif token_type == "FALSE":
             self.pos += 1
             return ("BOOL", False)
-
-        elif self.tokens[self.pos][0] == "MINUS":
+        elif token_type == "IDENT":
             self.pos += 1
-            node = self.factor()
-            return ("NEGATE", node)
-
-        elif self.tokens[self.pos][0] == "NUMBER":
-            value = self.tokens[self.pos][1]
+            return ("VAR", token_value)
+        elif token_type == "NOT":
             self.pos += 1
-            return ("NUMBER", value)
-
-        elif self.tokens[self.pos][0] == "LPAREN":
+            expr = self.factor()
+            return ("NOT", expr)
+        elif token_type == "LPAREN":
             self.pos += 1
-            node = self.bool_expr()
-            if self.tokens[self.pos][0] != "RPAREN":
+            expr = self.bool_expr()
+            if self.pos >= len(self.tokens) or self.tokens[self.pos][0] != "RPAREN":
                 raise SyntaxError("Missing closing parenthesis")
             self.pos += 1
-            return node
-        elif self.tokens[self.pos][0] == "STRING":
-            value = self.tokens[self.pos][1][1:-1]  # remove quotes
-            self.pos += 1
-            return ("STRING", value)
+            return expr
         else:
             raise SyntaxError(f"Unexpected token: {self.tokens[self.pos]}")

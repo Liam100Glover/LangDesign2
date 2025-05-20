@@ -1,4 +1,15 @@
 print ("hello")
+
 print ("foo" + "bar")
+
 print ("hello" == "hello")
+
 print ("a" != "b")
+
+print ("10 corgis" != "10" + "corgis")
+
+print ("Stage" + " " + "Three")
+
+print ("true" == "true")
+
+print ("yes" != "no")
