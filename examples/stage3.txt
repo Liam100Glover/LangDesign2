@@ -1,0 +1,4 @@
+print ("hello")
+print ("foo" + "bar")
+print ("hello" == "hello")
+print ("a" != "b")
