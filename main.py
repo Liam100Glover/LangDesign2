@@ -1,27 +1,30 @@
-# main.py
+import os
 import sys
 
-# if you need it, add the current directory to the path (usually not needed if you run from here)
-# import os
-# sys.path.insert(0, os.path.dirname(__file__))
+# Prepend the `interpreter/` directory (which contains lexer.py, parser.py, interpreter.py)
+interp_dir = os.path.join(os.path.dirname(__file__), "interpreter")
+sys.path.insert(0, interp_dir)
 
-from interpreter.lexer         import tokenize
-from interpreter.parser        import Parser
-from interpreter.interpreter   import Interpreter
+# Import modules from the interpreter/ folder directly
+import lexer
+import parser
+import interpreter
 
-def run_file(path):
-    with open(path) as f:
+# Use the classes/functions
+def run_file(file_path):
+    # Read source file as UTF-8 to avoid platform default encoding issues
+    with open(file_path, "r", encoding="utf-8") as f:
         code = f.read()
-    tokens     = tokenize(code)
-    parser     = Parser(tokens)
-    stmts      = parser.parse()
-    engine     = Interpreter()
-    for s in stmts:
-        engine.execute(s)
+
+    tokens     = lexer.tokenize(code)
+    statements = parser.Parser(tokens).parse()
+
+    engine = interpreter.Interpreter()
+    for stmt in statements:
+        engine.execute(stmt)
 
 if __name__ == "__main__":
-    import sys as _sys
-    if len(_sys.argv) != 2:
+    if len(sys.argv) != 2:
         print("Usage: python main.py <source_file>")
     else:
-        run_file(_sys.argv[1])
+        run_file(sys.argv[1])

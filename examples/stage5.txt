@@ -1,0 +1,50 @@
+# Stage 5: Control-Flow Tests
+
+# 1) Simple while-loop counting 0→4
+i = 0
+while (i < 5) {
+  print i
+  i = i + 1
+}
+print "Exited loop, i="
+print i
+
+# 2) If/else branches
+x = 3
+if (x % 2 == 0) {
+  print "x is even"
+} else {
+  print "x is odd"
+}
+
+# 3) Nested ifs & chaining
+n = 7
+if (n > 0) {
+  if (n < 10) {
+    print "small positive"
+  } else {
+    print "large positive"
+  }
+} else {
+  print "non-positive"
+}
+
+# 4) While with boolean logic
+count = 0
+flag  = true
+while (flag and count < 3) {
+  print "iter"
+  print count
+  count = count + 1
+  if (count == 3) {
+    flag = false
+  }
+}
+
+# 5) input() builtin + branch on user input
+name = input("Enter your name: ")
+if (name == "Alice") {
+  print "Welcome back, Alice!"
+} else {
+  print "Hello, " + name + "!"
+}
