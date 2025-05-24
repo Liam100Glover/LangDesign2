@@ -2,38 +2,54 @@ import re
 
 # Define all possible token types and their regex patterns
 TOKEN_SPEC = [
-    ("PRINT",    r"\bprint\b"),         # print keyword
-    ("IF",       r"\bif\b"),            # if keyword
-    ("ELSE",     r"\belse\b"),          # else keyword
-    ("WHILE",    r"\bwhile\b"),         # while keyword
-    ("INPUT",    r"\binput\b"),         # input builtin
-    ("STRING",   r'"[^"]*"'),            # string literals
-    ("TRUE",     r"\btrue\b"),          # boolean true
-    ("FALSE",    r"\bfalse\b"),         # boolean false
-    ("AND",      r"\band\b"),           # logical and
-    ("OR",       r"\bor\b"),            # logical or
-    ("EQ",       r"=="),                  # equal
-    ("NEQ",      r"!="),                  # not equal
-    ("LE",       r"<="),                  # less or equal
-    ("GE",       r">="),                  # greater or equal
-    ("LT",       r"<"),                   # less than
-    ("GT",       r">"),                   # greater than
-    ("ASSIGN",   r"="),                   # assignment
-    ("NOT",      r"!"),                   # logical not
-    ("NUMBER",   r"\d+(\.\d+)?"),      # integer or decimal
-    ("PLUS",     r"\+"),                 # addition
-    ("MINUS",    r"-"),                   # subtraction / unary minus
-    ("MUL",      r"\*"),                 # multiplication
-    ("DIV",      r"/"),                   # division
-    ("MOD",      r"%"),                   # mod
-    ("LPAREN",   r"\("),                 # left parenthesis
-    ("RPAREN",   r"\)"),                 # right parenthesis
-    ("LBRACE",   r"\{"),                 # left brace
-    ("RBRACE",   r"\}"),                 # right brace
-    ("IDENT",    r"[a-zA-Z_][a-zA-Z0-9_]*"),  # identifiers
-    ("COMMENT",  r"#.*"),                 # comments
-    ("SKIP",     r"[ \t\r\n]+"),       # spaces, tabs, newlines
-    ("MISMATCH", r".")                    # any other character
+    # Keywords
+    ("PRINT",    r"\bprint\b"),
+    ("IF",       r"\bif\b"),
+    ("ELSE",     r"\belse\b"),
+    ("WHILE",    r"\bwhile\b"),
+    ("INPUT",    r"\binput\b"),
+    
+    # Literals
+    ("STRING",   r'"[^"\\]*"'),
+    ("TRUE",     r"\btrue\b"),
+    ("FALSE",    r"\bfalse\b"),
+    ("NUMBER",   r"\d+(\.\d+)?"),
+
+    # Operators
+    ("AND",      r"\band\b"),
+    ("OR",       r"\bor\b"),
+    ("EQ",       r"=="),
+    ("NEQ",      r"!="),
+    ("LE",       r"<="),
+    ("GE",       r">="),
+    ("LT",       r"<"),
+    ("GT",       r">"),
+    ("ASSIGN",   r"="),
+    ("NOT",      r"!"),
+    ("PLUS",     r"\+"),
+    ("MINUS",    r"-"),
+    ("MUL",      r"\*"),
+    ("DIV",      r"/"),
+    ("MOD",      r"%"),
+
+    # Delimiters
+    ("LPAREN",   r"\("),
+    ("RPAREN",   r"\)"),
+    ("LBRACE",   r"\{"),
+    ("RBRACE",   r"\}"),
+    ("LBRACKET", r"\["),
+    ("RBRACKET", r"\]"),
+    ("COMMA",    r","),
+
+    # Identifier (variables, function names)
+    ("IDENT",    r"[a-zA-Z_][a-zA-Z0-9_]*"),
+
+    # Comments and whitespace
+    ("COMMENT",  r"#.*"),
+    ("SKIP",     r"[ \t\r\n]+"),
+
+    # Any other character
+    ("MISMATCH", r".")
 ]
 
 # Build master regex pattern
@@ -49,10 +65,12 @@ def tokenize(code):
             tokens.append(("NUMBER", float(value)))
         elif kind == "STRING":
             tokens.append(("STRING", value[1:-1]))  # strip quotes
-        elif kind in ("TRUE", "FALSE", "PRINT", "IF", "ELSE", "WHILE", "INPUT",
-                      "AND", "OR", "EQ", "NEQ", "LE", "GE", "LT", "GT",
-                      "ASSIGN", "NOT", "PLUS", "MINUS", "MUL", "DIV", "MOD",
-                      "LPAREN", "RPAREN", "LBRACE", "RBRACE"):
+        elif kind in ("TRUE", "FALSE"):
+            tokens.append((kind, value))
+        elif kind in ("PRINT","IF","ELSE","WHILE","INPUT",
+                      "AND","OR","EQ","NEQ","LE","GE","LT","GT",
+                      "ASSIGN","NOT","PLUS","MINUS","MUL","DIV","MOD",
+                      "LPAREN","RPAREN","LBRACE","RBRACE","LBRACKET","RBRACKET","COMMA"):
             tokens.append((kind, value))
         elif kind == "IDENT":
             tokens.append(("IDENT", value))

@@ -1,3 +1,5 @@
+# interpreter/parser.py
+
 class Parser:
     def __init__(self, tokens):
         self.tokens = tokens
@@ -6,16 +8,18 @@ class Parser:
     def parse(self):
         statements = []
         while self.pos < len(self.tokens):
-            tok_type, tok_val = self.tokens[self.pos]
+            tok_type, _ = self.tokens[self.pos]
             if tok_type == "PRINT":
                 self.pos += 1
                 expr = self.bool_expr()
                 statements.append(("PRINT", expr))
             elif tok_type == "IDENT" and self.peek("ASSIGN"):
-                name = tok_val
-                self.pos += 2  # skip IDENT and ASSIGN
+                name = self.tokens[self.pos][1]
+                self.pos += 2
                 expr = self.bool_expr()
                 statements.append(("ASSIGN", name, expr))
+            elif tok_type == "IDENT" and self.peek("LPAREN"):
+                statements.append(self.parse_call())
             elif tok_type == "IF":
                 statements.append(self.parse_if())
             elif tok_type == "WHILE":
@@ -25,10 +29,12 @@ class Parser:
         return statements
 
     def peek(self, kind):
-        return (self.pos + 1 < len(self.tokens)) and (self.tokens[self.pos + 1][0] == kind)
+        return (self.pos + 1 < len(self.tokens)
+                and self.tokens[self.pos + 1][0] == kind)
 
     def match(self, kind):
-        if self.pos < len(self.tokens) and self.tokens[self.pos][0] == kind:
+        if (self.pos < len(self.tokens)
+            and self.tokens[self.pos][0] == kind):
             self.pos += 1
             return True
         return False
@@ -37,45 +43,60 @@ class Parser:
         if not self.match("LBRACE"):
             raise SyntaxError("Expected '{'")
         stmts = []
-        while self.pos < len(self.tokens) and self.tokens[self.pos][0] != "RBRACE":
-            tok_type = self.tokens[self.pos][0]
-            if tok_type == "PRINT":
-                self.pos += 1
-                expr = self.bool_expr()
-                stmts.append(("PRINT", expr))
-            elif tok_type == "IDENT" and self.peek("ASSIGN"):
-                name = self.tokens[self.pos][1]
-                self.pos += 2
-                expr = self.bool_expr()
-                stmts.append(("ASSIGN", name, expr))
-            elif tok_type == "IF":
-                stmts.append(self.parse_if())
-            elif tok_type == "WHILE":
-                stmts.append(self.parse_while())
-            else:
-                raise SyntaxError(f"Unexpected token in block: {self.tokens[self.pos]}")
-        if not self.match("RBRACE"):
-            raise SyntaxError("Expected '}'")
+        while not self.match("RBRACE"):
+            stmts.append(self.parse_stmt())
         return stmts
 
+    def parse_stmt(self):
+        tok_type, _ = self.tokens[self.pos]
+        if tok_type == "PRINT":
+            self.pos += 1
+            expr = self.bool_expr()
+            return ("PRINT", expr)
+        elif tok_type == "IDENT" and self.peek("ASSIGN"):
+            name = self.tokens[self.pos][1]
+            self.pos += 2
+            expr = self.bool_expr()
+            return ("ASSIGN", name, expr)
+        elif tok_type == "IDENT" and self.peek("LPAREN"):
+            return self.parse_call()
+        elif tok_type == "IF":
+            return self.parse_if()
+        elif tok_type == "WHILE":
+            return self.parse_while()
+        else:
+            raise SyntaxError(f"Unexpected token in block: {self.tokens[self.pos]}")
+
+    def parse_call(self):
+        # IDENT '(' [args] ')'
+        name = self.tokens[self.pos][1]
+        self.pos += 1
+        if not self.match("LPAREN"):
+            raise SyntaxError("Expected '(' after function name")
+        args = []
+        if not self.match("RPAREN"):
+            args.append(self.bool_expr())
+            while self.match("COMMA"):
+                args.append(self.bool_expr())
+            if not self.match("RPAREN"):
+                raise SyntaxError("Expected ')' after function args")
+        return ("CALL", name, args)
+
     def parse_if(self):
-        # parse: IF '(' bool_expr ')' block [ELSE block]
-        self.pos += 1  # skip IF
+        self.match("IF")
         if not self.match("LPAREN"):
             raise SyntaxError("Expected '(' after 'if'")
         cond = self.bool_expr()
         if not self.match("RPAREN"):
             raise SyntaxError("Expected ')' after if condition")
-        then_block = self.parse_block()
-        else_block = None
-        if self.pos < len(self.tokens) and self.tokens[self.pos][0] == "ELSE":
-            self.pos += 1
-            else_block = self.parse_block()
-        return ("IF", cond, then_block, else_block)
+        then_blk = self.parse_block()
+        else_blk = None
+        if self.match("ELSE"):
+            else_blk = self.parse_block()
+        return ("IF", cond, then_blk, else_blk)
 
     def parse_while(self):
-        # parse: WHILE '(' bool_expr ')' block
-        self.pos += 1  # skip WHILE
+        self.match("WHILE")
         if not self.match("LPAREN"):
             raise SyntaxError("Expected '(' after 'while'")
         cond = self.bool_expr()
@@ -86,7 +107,8 @@ class Parser:
 
     def bool_expr(self):
         node = self.compare_expr()
-        while self.pos < len(self.tokens) and self.tokens[self.pos][0] in ("AND", "OR"):
+        while (self.pos < len(self.tokens)
+               and self.tokens[self.pos][0] in ("AND", "OR")):
             op = self.tokens[self.pos][0]
             self.pos += 1
             right = self.compare_expr()
@@ -95,19 +117,19 @@ class Parser:
 
     def compare_expr(self):
         node = self.expr()
-        comparisons = []
-        while self.pos < len(self.tokens) and self.tokens[self.pos][0] in ("EQ", "NEQ", "LT", "GT", "LE", "GE"):
+        comps = []
+        while (self.pos < len(self.tokens)
+               and self.tokens[self.pos][0] in ("EQ","NEQ","LT","GT","LE","GE")):
             op = self.tokens[self.pos][0]
             self.pos += 1
-            right = self.expr()
-            comparisons.append((op, right))
-        if comparisons:
-            return ("CHAIN", node, comparisons)
-        return node
+            rhs = self.expr()
+            comps.append((op, rhs))
+        return ("CHAIN", node, comps) if comps else node
 
     def expr(self):
         node = self.term()
-        while self.pos < len(self.tokens) and self.tokens[self.pos][0] in ("PLUS", "MINUS"):
+        while (self.pos < len(self.tokens)
+               and self.tokens[self.pos][0] in ("PLUS","MINUS")):
             op = self.tokens[self.pos][0]
             self.pos += 1
             right = self.term()
@@ -116,7 +138,8 @@ class Parser:
 
     def term(self):
         node = self.factor()
-        while self.pos < len(self.tokens) and self.tokens[self.pos][0] in ("MUL", "DIV", "MOD"):
+        while (self.pos < len(self.tokens)
+               and self.tokens[self.pos][0] in ("MUL","DIV","MOD")):
             op = self.tokens[self.pos][0]
             self.pos += 1
             right = self.factor()
@@ -126,14 +149,16 @@ class Parser:
     def factor(self):
         if self.pos >= len(self.tokens):
             raise SyntaxError("Unexpected end of input")
-        token_type, token_value = self.tokens[self.pos]
+        tok_type, tok_val = self.tokens[self.pos]
+
         # unary minus
-        if token_type == "MINUS":
+        if tok_type == "MINUS":
             self.pos += 1
             expr = self.factor()
             return ("NEG", expr)
-        # input builtin
-        if token_type == "INPUT":
+
+        # input(...) builtin
+        if tok_type == "INPUT":
             self.pos += 1
             if not self.match("LPAREN"):
                 raise SyntaxError("Expected '(' after 'input'")
@@ -141,31 +166,52 @@ class Parser:
             if not self.match("RPAREN"):
                 raise SyntaxError("Expected ')' after input call")
             return ("INPUT", prompt)
-        if token_type == "NUMBER":
+
+        # list literal
+        if tok_type == "LBRACKET":
             self.pos += 1
-            return ("NUMBER", token_value)
-        elif token_type == "STRING":
+            elems = []
+            if not self.match("RBRACKET"):
+                elems.append(self.bool_expr())
+                while self.match("COMMA"):
+                    elems.append(self.bool_expr())
+                if not self.match("RBRACKET"):
+                    raise SyntaxError("Expected ']' in list literal")
+            return ("LIST", elems)
+
+        # primary literals and variables
+        if tok_type == "NUMBER":
             self.pos += 1
-            return ("STRING", token_value)
-        elif token_type == "TRUE":
+            return ("NUMBER", tok_val)
+        if tok_type == "STRING":
+            self.pos += 1
+            return ("STRING", tok_val)
+        if tok_type == "TRUE":
             self.pos += 1
             return ("BOOL", True)
-        elif token_type == "FALSE":
+        if tok_type == "FALSE":
             self.pos += 1
             return ("BOOL", False)
-        elif token_type == "IDENT":
+        if tok_type == "IDENT":
             self.pos += 1
-            return ("VAR", token_value)
-        elif token_type == "NOT":
+            node = ("VAR", tok_val)
+        elif tok_type == "NOT":
             self.pos += 1
             expr = self.factor()
-            return ("NOT", expr)
-        elif token_type == "LPAREN":
+            node = ("NOT", expr)
+        elif tok_type == "LPAREN":
             self.pos += 1
-            expr = self.bool_expr()
+            node = self.bool_expr()
             if not self.match("RPAREN"):
                 raise SyntaxError("Missing closing parenthesis")
-            return expr
         else:
             raise SyntaxError(f"Unexpected token: {self.tokens[self.pos]}")
 
+        # array indexing
+        while self.match("LBRACKET"):
+            idx = self.bool_expr()
+            if not self.match("RBRACKET"):
+                raise SyntaxError("Expected ']' after index")
+            node = ("INDEX", node, idx)
+
+        return node

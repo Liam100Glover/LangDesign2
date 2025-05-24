@@ -1,0 +1,33 @@
+# 1) Create and print a list of numbers
+nums = [1, 2, 3]
+print nums           # [1.0, 2.0, 3.0]
+
+# 2) Indexing
+print nums[0]         # 1.0
+print nums[1 + 1]     # 3.0
+
+# 3) append(list, value)
+append(nums, 4)
+print nums            # [1.0, 2.0, 3.0, 4.0]
+
+# 4) remove(list, index)
+remove(nums, 1)
+print nums            # [1.0, 3.0, 4.0]
+
+# 5) List of strings
+words = ["a", "b", "c"]
+append(words, "d")
+print words[3]        # d
+
+# 6) Nested lists
+nested = [[1, 2], [3, 4]]
+print nested[1][0]    # 3.0
+
+# 7) Boolean list and append
+flags = [true, false]
+append(flags, true)
+print flags           # [True, False, True]
+
+# 8) Out-of-bounds errors
+print nums[10]        # Error: Indexing non-list or list index error
+remove(words, 10)     # Error: pop index out of range
