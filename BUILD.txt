@@ -1,1 +1,33 @@
-To build the project, run: python main.py <path_to_source_file>
+Build / Install Instructions
+This is a pure-Python project with no compilation or external dependencies. It will run out-of-the-box on any environment with Python 3.8+ installed (such as the Azure Labs VM).
+
+Included in the submission:
+
+main.py
+
+interpreter/ directory containing:
+
+__init__.py
+
+lexer.py
+
+parser.py
+
+interpreter.py
+
+examples/ directory containing :
+stages referenced in the rubric, within those txt files is written code that will be tokenized and ran
+(ie stage 1 is 0-20%)
+
+
+Using the cmd terminal type the following : 
+cd.. 
+cd.. 
+cd 100617493LangDesign
+python main.py examples/stage1.txt (etc etc)
+
+You may also choose to use the terminal in vc code when the project is open in which case skip the change directory steps
+
+
+To use the project, run: python main.py <path_to_source_file> (replace source file with directory of txt file you wish to test)
+(ie: python main.py examples/stage1.txt)
