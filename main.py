@@ -28,3 +28,8 @@ if __name__ == "__main__":
         print("Usage: python main.py <source_file>")
     else:
         run_file(sys.argv[1])
+
+# The empty __init__.py file in the interpreter/ directory
+# tells Python to treat that directory as a package. This enables
+# the modules inside (lexer.py, parser.py, interpreter.py) to
+# be imported using standard import statements when running main.py.

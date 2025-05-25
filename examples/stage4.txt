@@ -1,23 +1,39 @@
+# Stage 4: Global Variables & Type‐Error Handling Tests
+# Verifies assignment to globals, reading them back, and that mixing strings and numbers raises an error.
+
+# 1) Assignment and arithmetic with globals
 x = 5
 x = x + 10
 print x
+# Expected output: 15.0
 
+# 2) String concatenation with globals
 greeting = "Hello"
 greeting = greeting + " world!"
 print (greeting)
+# Expected output: Hello world!
 
+# 3) Boolean logic on globals
 truth = true
 print (truth and false)
+# Expected output: False
 
+# 4) Mixed‐type error
 mixed = "abc"
-mixed = mixed + 123     # Throw an error
+mixed = mixed + 123
+# Expected runtime error: Cannot add str and float
 
+# 5) Multiple concatenations
 greeting = "Hi"
-name = "Coding"
-message = greeting + ", " + name
-print message        # Hi, Coding
+name     = "Coding"
+message  = greeting + ", " + name
+print message
+# Expected output: Hi, Coding
 
+# 6) More boolean logic
 a = true
 b = false
-print a and b        # False
-print a or b         # True
+print a and b
+# Expected output: False
+print a or b
+# Expected output: True

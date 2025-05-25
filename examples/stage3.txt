@@ -1,15 +1,27 @@
+# Stage 3: String Handling Tests
+# Exercises string literals, concatenation, and string equality/inequality comparisons.
+
 print ("hello")
+# Expected output: hello
 
 print ("foo" + "bar")
+# Expected output: foobar
 
 print ("hello" == "hello")
+# Expected output: True
 
 print ("a" != "b")
+# Expected output: True
 
 print ("10 corgis" != "10" + "corgis")
+#   "10 corgis" vs "10corgis" → not equal
+# Expected output: True
 
 print ("Stage" + " " + "Three")
+# Expected output: Stage Three
 
 print ("true" == "true")
+# Expected output: True
 
 print ("yes" != "no")
+# Expected output: True

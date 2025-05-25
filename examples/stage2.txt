@@ -1,15 +1,33 @@
+# Stage 2: Boolean Logic & Comparison Tests
+# Checks equality, inequality, numeric comparisons, logical negation, and AND/OR.
+
 print true == false
+# Expected output: False
 
 print true != false
+# Expected output: True
 
 print (5 < 10)
+# Expected output: True
 
 print !(5 - 4 > 3 * 2 == !false)
+# Breakdown:
+#   5 - 4   → 1
+#   3 * 2   → 6
+#   1 > 6   → False
+#   !false → True
+#   (False == True) → False
+#   !False → True
+# Expected output: True
 
 print true and true
+# Expected output: True
 
 print false and true
+# Expected output: False
 
 print (0 < 1) or false
+# Expected output: True
 
 print false or false
+# Expected output: False

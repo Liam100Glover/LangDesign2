@@ -1,6 +1,7 @@
-# Stage 5: Control-Flow Tests
+# Stage 5: Control‐Flow & Input Tests
+# Exercises while‐loops, if/else, nested blocks, boolean logic in conditions, and input()/branching.
 
-# 1) Simple while-loop counting 0→4
+# 1) Simple while‐loop counting 0→4
 i = 0
 while (i < 5) {
   print i
@@ -8,6 +9,14 @@ while (i < 5) {
 }
 print "Exited loop, i="
 print i
+# Expected output:
+# 0.0
+# 1.0
+# 2.0
+# 3.0
+# 4.0
+# Exited loop, i=
+# 5.0
 
 # 2) If/else branches
 x = 3
@@ -16,8 +25,9 @@ if (x % 2 == 0) {
 } else {
   print "x is odd"
 }
+# Expected output: x is odd
 
-# 3) Nested ifs & chaining
+# 3) Nested ifs & comparison chaining
 n = 7
 if (n > 0) {
   if (n < 10) {
@@ -28,6 +38,7 @@ if (n > 0) {
 } else {
   print "non-positive"
 }
+# Expected output: small positive
 
 # 4) While with boolean logic
 count = 0
@@ -40,6 +51,13 @@ while (flag and count < 3) {
     flag = false
   }
 }
+# Expected output:
+# iter
+# 0.0
+# iter
+# 1.0
+# iter
+# 2.0
 
 # 5) input() builtin + branch on user input
 name = input("Enter your name: ")
@@ -48,3 +66,7 @@ if (name == "Alice") {
 } else {
   print "Hello, " + name + "!"
 }
+# Expected behavior:
+#  - Program prints: Enter your name:
+#  - If you type "Alice" → prints: Welcome back, Alice!
+#  - Otherwise         → prints: Hello, <your input>!

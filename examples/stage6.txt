@@ -1,33 +1,48 @@
+# Stage 6: List Data Structure Tests
+# Tests list creation, indexing, append/remove, nested lists, boolean lists, and error handling.
+
 # 1) Create and print a list of numbers
 nums = [1, 2, 3]
-print nums           # [1.0, 2.0, 3.0]
+print nums
+# Expected output: [1.0, 2.0, 3.0]
 
 # 2) Indexing
-print nums[0]         # 1.0
-print nums[1 + 1]     # 3.0
+print nums[0]
+print nums[1 + 1]
+# Expected output:
+# 1.0
+# 3.0
 
 # 3) append(list, value)
 append(nums, 4)
-print nums            # [1.0, 2.0, 3.0, 4.0]
+print nums
+# Expected output: [1.0, 2.0, 3.0, 4.0]
 
 # 4) remove(list, index)
 remove(nums, 1)
-print nums            # [1.0, 3.0, 4.0]
+print nums
+# Expected output: [1.0, 3.0, 4.0]
 
 # 5) List of strings
 words = ["a", "b", "c"]
 append(words, "d")
-print words[3]        # d
+print words[3]
+# Expected output: d
 
 # 6) Nested lists
 nested = [[1, 2], [3, 4]]
-print nested[1][0]    # 3.0
+print nested[1][0]
+# Expected output: 3.0
 
 # 7) Boolean list and append
 flags = [true, false]
 append(flags, true)
-print flags           # [True, False, True]
+print flags
+# Expected output: [True, False, True]
 
-# 8) Out-of-bounds errors
-print nums[10]        # Error: Indexing non-list or list index error
-remove(words, 10)     # Error: pop index out of range
+# 8) Out‐of‐bounds errors
+print nums[10]
+# Expected error message: Error: list index out of range
+
+remove(words, 10)
+# Expected error message: Error: pop index out of range
